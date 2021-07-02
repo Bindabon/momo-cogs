@@ -16,4 +16,8 @@ For instagram cog you have to buy an api key from https://rapidapi.com/contact-c
 
 enjoy the cogs but dont forget to donate : https://www.paypal.me/ksinging 
 
+
+If you want more private cogs you have to pay or donate.
+
+
 thank you all.
