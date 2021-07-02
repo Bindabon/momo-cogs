@@ -14,10 +14,10 @@ class Twitter(commands.Cog):
         )
         self.BASE_URL = "https://twitter.com"
 
-        api_key = "wopEg5Wraa1TYmsGIyXPOdzuw"
-        api_secret = "Az48T8aaIGEkWNRhJAdrXmwOyFYW7U2w4jiyA5TXMQiMnVr4rS"
-        access_token = "1453586348-YBjJrOBlkJzGJLand24ShePngt09vvSkPMmJcRb"
-        access_token_secret = "Uy4iaaalMvL8Gobe7SZGXSlTg5Xhcol0AY17A7LqDd2Fr"
+        api_key = ""
+        api_secret = ""
+        access_token = ""
+        access_token_secret = ""
 
         auth = tweepy.OAuthHandler(api_key, api_secret)
         auth.set_access_token(access_token, access_token_secret)
