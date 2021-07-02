@@ -5,10 +5,10 @@ some redbot cogs that i made for momo bot but people can use it for free.
 
 This twitter cog uses tweepy so you have to do `pip install tweepy` and also edit the api key to your own keys.
         
-       `api_key = ""
-        api_secret = ""
-        access_token = ""
-        access_token_secret = ""`
+       api_key = ""
+       api_secret = ""
+       access_token = ""
+       access_token_secret = ""
 
  and paste your own keys from https://developer.twitter.com/en/application/
 
