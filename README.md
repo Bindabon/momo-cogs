@@ -12,7 +12,7 @@ This twitter cog uses tweepy so you have to do `pip install tweepy` and also edi
 
 paste your own keys from https://developer.twitter.com/en/application/
 
-For instagram cog you have to buy an api from https://rapidapi.com/contact-cmWXEDTql/api/instagram-unofficial/pricing and then you can use it also you have to replace api keys on cog too. this cog uses asyncio-throttle so you have to do `pip install asyncio-throttle`.
+For instagram cog you have to buy an api key from https://rapidapi.com/contact-cmWXEDTql/api/instagram-unofficial/pricing and then you can use it also you have to replace api keys on cog too. this cog uses asyncio-throttle so you have to do `pip install asyncio-throttle`.
 
 enjoy the cogs but dont forget to donate : https://www.paypal.me/ksinging 
 
