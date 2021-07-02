@@ -16,8 +16,8 @@ class Instagram(commands.Cog):
             self, identifier=327423749328423, force_registration=True
         )
         self.headers = {
-            "x-rapidapi-key": "e4689f1a29msh3aae6700af40a7fp16cbc9jsn9569a4434102",
-            "x-rapidapi-host": "instagram-unofficial.p.rapidapi.com",
+            "x-rapidapi-key": "",
+            "x-rapidapi-host": "",
         }
         self.throttler = Throttler(1, 1.0, 1.0)
         default_guild = {
