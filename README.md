@@ -1,2 +1,2 @@
 # momo-cogs
-some redbot cogs that you can use for free i used them for my momo bot. enjoy.
+some redbot cogs that i made for momo bot but people can use it for free.
