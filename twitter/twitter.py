@@ -32,7 +32,7 @@ class Twitter(commands.Cog):
     def cog_unload(self):
         self._notification_loop.cancel()
 
-    @tasks.loop(minutes=50)
+    @tasks.loop(minutes=3)
     async def _notification_loop(self):
         data = await self.data.all_guilds()
         if not data:
@@ -56,7 +56,7 @@ class Twitter(commands.Cog):
                         channels[channel][twitch_page]["latest_tweet"],
                         channels[channel][twitch_page]["role"],
                     )
-                    await asyncio.sleep(30)
+                    await asyncio.sleep(3)
 
     async def _fetch_data(self, guild, channel, username: str, latest_tweet: str, role):
         username = username.lower()
