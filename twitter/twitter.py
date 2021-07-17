@@ -34,6 +34,8 @@ class Twitter(commands.Cog):
 
     @tasks.loop(minutes=3)
     async def _notification_loop(self):
+        await self.bot.wait_until_red_ready()
+        self.log.debug("Booting up Twitter service..")        
         data = await self.data.all_guilds()
         if not data:
             return
