@@ -1,14 +1,18 @@
 import discord
 from discord.ext import tasks
+from typing import Optional
 from redbot.core import commands, Config, checks
 from datetime import datetime
 import asyncio
 import tweepy
-
+import logging
+from logging import getLogger
 
 class Twitter(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.log = logging.getLogger("twitter")
+        self.log.setLevel(logging.DEBUG)        
         self.data = Config.get_conf(
             self, identifier=352305325230, force_registration=True
         )
@@ -22,7 +26,7 @@ class Twitter(commands.Cog):
         auth = tweepy.OAuthHandler(api_key, api_secret)
         auth.set_access_token(access_token, access_token_secret)
         self.api = tweepy.API(
-            auth, wait_on_rate_limit=False, wait_on_rate_limit_notify=False
+            auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True
         )
 
         default_guild = {"channels": {}}
@@ -32,10 +36,10 @@ class Twitter(commands.Cog):
     def cog_unload(self):
         self._notification_loop.cancel()
 
-    @tasks.loop(minutes=3)
+    @tasks.loop(seconds=60, reconnect=True)
     async def _notification_loop(self):
         await self.bot.wait_until_red_ready()
-        self.log.debug("Booting up Twitter service..")        
+        self.log.debug("Booting up Twitter service..")
         data = await self.data.all_guilds()
         if not data:
             return
@@ -51,14 +55,16 @@ class Twitter(commands.Cog):
 
             for channel in channels:
                 for twitch_page in channels[channel]:
-                    await self._fetch_data(
-                        guild,
-                        channel,
-                        twitch_page,
-                        channels[channel][twitch_page]["latest_tweet"],
-                        channels[channel][twitch_page]["role"],
+                    asyncio.create_task(
+                        self._fetch_data(
+                            guild,
+                            channel,
+                            twitch_page,
+                            channels[channel][twitch_page]["latest_tweet"],
+                            channels[channel][twitch_page]["role"],
+                        )
                     )
-                    await asyncio.sleep(3)
+                    await asyncio.sleep(1)
 
     async def _fetch_data(self, guild, channel, username: str, latest_tweet: str, role):
         username = username.lower()
@@ -66,31 +72,44 @@ class Twitter(commands.Cog):
             user = self.api.user_timeline(username, count=1)
         except:
             return
-
+        self.log.info("done 5")
+        await asyncio.sleep(1)
         if not user:
             return
-
+        self.log.info("done 6")
+        await asyncio.sleep(1)
         _id = user[0].id_str
 
         if _id == latest_tweet:
             return
-
+        self.log.info("done 66")
         await self.data.guild(guild).channels.set_raw(
             channel, username, "latest_tweet", value=_id
         )
 
         link = f"{self.BASE_URL}/{username}/status/{_id}"
-
-        role = guild.get_role(role).mention if role else None
+ 
+        if role:
+            role = guild.get_role(role)
+            if role: 
+                role = role.mention
+                self.log.info("done 15")
+        else:
+            role = None
+                
         channel = guild.get_channel(int(channel)) if channel else None
         content = f"{role} " if role else ""
         content += link
 
         if channel:
-            await channel.send(
-                content=content, allowed_mentions=discord.AllowedMentions(roles=True)
-            )
-
+            try:
+                await channel.send(content=content, allowed_mentions=discord.AllowedMentions(roles=True))
+                self.log.info("done 7")
+            except commands.MissingPermissions:
+                await channel.send(embed=embed, content=content)
+            except discord.Forbidden:
+                self.log.info("i cant talk in a channel")                
+                
     @commands.guild_only()
     @commands.group()
     async def twitter(self, ctx):
@@ -115,11 +134,13 @@ class Twitter(commands.Cog):
     async def _add(
         self,
         ctx,
-        channel: discord.TextChannel,
+        channel: Optional[discord.TextChannel],
         username: str,
         role: discord.Role = None,
     ):
         """Set notifications for a twitter channel in a Text Channel."""
+        if channel is None:
+            channel = ctx.channel
         username = username.lower()
         try:
             user = self.api.user_timeline(username, count=1)
@@ -145,8 +166,10 @@ class Twitter(commands.Cog):
 
     @twitter.command(name="remove", aliases=["delete"])
     @checks.mod_or_permissions(manage_channels=True)
-    async def _remove(self, ctx, channel: discord.TextChannel, username: str):
+    async def _remove(self, ctx, channel: Optional[discord.TextChannel], username: str):
         """Remove a channel from the list."""
+        if channel is None:
+            channel = ctx.channel
         data = await self.data.guild(ctx.guild).channels()
         if str(channel.id) not in data:
             return await ctx.send(
@@ -167,8 +190,10 @@ class Twitter(commands.Cog):
 
     @twitter.command(name="list")
     @checks.mod_or_permissions(manage_channels=True)
-    async def _list(self, ctx, channel: discord.TextChannel):
+    async def _list(self, ctx, channel: Optional[discord.TextChannel]):
         """View a list of all the notifications set in a channel."""
+        if channel is None:
+            channel = ctx.channel        
         data = await self.data.guild(ctx.guild).channels()
         if str(channel.id) not in data:
             return await ctx.send(
